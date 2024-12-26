@@ -14,6 +14,6 @@ body,
 html {
   margin: 0;
   padding: 0;
-  background-color: #121212; 
+  background-color: #001B4C;
 }
 </style>

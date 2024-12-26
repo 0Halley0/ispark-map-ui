@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div>
+      <h1>ISPARK</h1>
+    </div>
     <div id="map"></div>
   </div>
 </template>
@@ -12,7 +15,13 @@ import * as L from "leaflet";
 const initialMap = ref(null);
 
 onMounted(() => {
-  initialMap.value = L.map("map").setView([41.024, 29.015], 19);
+  const mapElement = document.getElementById("map");
+  if (!mapElement) {
+    console.error("Map element not found!");
+    return;
+  }
+
+  initialMap.value = L.map(mapElement).setView([41.024, 29.015], 19);
 
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
@@ -26,7 +35,8 @@ onMounted(() => {
     });
 
   const markerIcon = new L.Icon({
-    iconUrl: require("leaflet/dist/images/marker-icon.png"),
+    iconUrl: new URL("leaflet/dist/images/marker-icon.png", import.meta.url)
+      .href,
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
@@ -44,4 +54,5 @@ onMounted(() => {
 #map {
   height: 100vh;
 }
+
 </style>
