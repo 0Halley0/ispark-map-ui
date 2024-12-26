@@ -1,9 +1,14 @@
 <template>
   <div>
-    <div>
-      <h1>ISPARK</h1>
+    <div class="">
+      <v-img
+        :width="300"
+        aspect-ratio="16/9"
+        cover
+        :src="require('@/assets/ispark-tansparent.png')"
+      />
     </div>
-    <div id="map"></div>
+    <div class="m-8" id="map"></div>
   </div>
 </template>
 
@@ -52,7 +57,8 @@ onMounted(() => {
 
 <style scoped>
 #map {
-  height: 100vh;
+  height: 80vh;
+  width: 80vw;
+  border-radius: 2rem;
 }
-
 </style>
