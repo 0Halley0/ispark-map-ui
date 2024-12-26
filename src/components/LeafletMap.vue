@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="">
     <div class="">
       <v-img
         :width="300"
@@ -8,7 +8,7 @@
         :src="require('@/assets/ispark-tansparent.png')"
       />
     </div>
-    <div class="m-8" id="map"></div>
+    <div class="" id="map"></div>
   </div>
 </template>
 
