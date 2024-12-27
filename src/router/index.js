@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import LeafletMap from "../components/LeafletMap.vue";
+import LeafletMap from "../views/LeafletMap.vue";
 
 const routes = [
   {
