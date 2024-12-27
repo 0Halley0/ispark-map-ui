@@ -36,17 +36,47 @@
       </p>
     </v-sheet>
   </div>
+
+  <div class="col-span-1 mt-8">
+    <h3 class="text-h6 text-center mb-4">İspark Otopark Listesi</h3>
+
+    <div v-if="isparkStore.isLoadingState">Yükleniyor...</div>
+    <div v-else-if="isparkStore.getError">
+      <p class="text-red-500">{{ isparkStore.getError }}</p>
+    </div>
+    <ul v-else class="list-none">
+      <li v-for="(park, index) in isparkData" :key="index" class="mb-4">
+        <p>
+          <strong>{{ park.parkName }}</strong>
+        </p>
+        <p>
+          Kapalı Alan: {{ park.capacity }} - Doluluk: {{ park.emptyCapacity }}
+        </p>
+        <p>İlçe: {{ park.district }}</p>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script setup>
 import IsparkHeader from "@/components/IsparkHeader.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
+import { useIsparkStore } from "@/stores/isparkStore";
 import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
 
+const isparkStore = useIsparkStore();
 const initialMap = ref(null);
 
+const isparkData = computed(() => isparkStore.isparkData?.data || []);
+
+
+watch(isparkData, (newValue) => {
+  console.log("Updated isparkData:", newValue);
+});
+
 onMounted(() => {
+  isparkStore.fetchIsparkData();
   const mapElement = document.getElementById("map");
   if (!mapElement) {
     console.error("Map element not found!");
