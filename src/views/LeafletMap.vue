@@ -55,12 +55,19 @@
       >
         Konum
       </v-btn>
-      <v-btn class="col-span-1" prepend-icon="mdi-help" stacked variant="tonal">
+      <v-btn
+        @click="isHelpActive = !isHelpActive"
+        class="col-span-1"
+        prepend-icon="mdi-help"
+        stacked
+        variant="tonal"
+      >
         Yardım
       </v-btn>
     </div>
 
     <v-sheet
+      v-if="isHelpActive"
       class="p-4 col-span-1 text-cardText text-center mx-auto"
       elevation="12"
       max-width="600"
@@ -119,26 +126,47 @@
 
     <div class="col-span-1 h-[80vh] w-[90vw] rounded-2xl" id="map"></div>
 
-    <h3 class="text-h6 text-center mb-4">İspark Otopark Listesi</h3>
-    <v-expansion-panels
-      class="col-span-1 w-[90vw] h-[70vh] overflow-auto"
-      variant="popout"
-    >
-      <div v-if="isparkStore.isLoadingState">
-        <p>Yükleniyor...</p>
-      </div>
-      <div v-else-if="isparkStore.getError">
-        <p class="text-red-500">{{ isparkStore.getError }}</p>
-      </div>
-      <v-expansion-panel
-        v-for="(park, index) in isparkData"
-        :key="index"
-        :title="park.parkName"
+    <div class="col-span-1">
+      <h3 class="text-h6 text-center mb-4">İspark Otopark Listesi</h3>
+      <v-expansion-panels
+        class="w-[90vw] h-[70vh] overflow-auto"
+        variant="popout"
       >
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor
-      </v-expansion-panel>
-    </v-expansion-panels>
+        <div v-if="isparkStore.isLoadingState">
+          <v-skeleton-loader
+            v-for="n in 6"
+            :key="n"
+            class="my-2 w-[90vw]"
+            elevation="12"
+            type="paragraph"
+          ></v-skeleton-loader>
+        </div>
+
+        <div v-else-if="isparkStore.getError">
+          <v-sheet
+            class="p-4 col-span-1 text-cardText text-center mx-auto"
+            elevation="12"
+            max-width="600"
+            rounded="lg"
+            width="100%"
+          >
+            <v-icon color="red" size="80" class="mb-5">mdi-alert-circle</v-icon>
+            <p class="text-red-500 font-weight-bold">
+              Veriler alınamadı. Lütfen daha sonra tekrar deneyiniz.
+            </p>
+          </v-sheet>
+        </div>
+
+        <v-expansion-panel
+          v-for="(park, index) in isparkData"
+          :key="index"
+          :title="park.parkName"
+        >
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </div>
   </div>
 </template>
 
@@ -150,6 +178,7 @@ import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
 
 const isparkStore = useIsparkStore();
+const isHelpActive = ref(false);
 const initialMap = ref(null);
 
 const isparkData = computed(() => isparkStore.isparkData?.data || []);
