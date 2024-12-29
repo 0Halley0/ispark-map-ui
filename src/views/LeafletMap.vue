@@ -94,7 +94,13 @@
         <span
           class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
         >
-          Uygulama üzerinden otoparkları harita üzerinde görüntüleyin.
+          Harita (<v-icon
+            color="primary"
+            icon="mdi-map-search"
+            size="20"
+          ></v-icon
+          >) tuşuna tıklayarak uygulama üzerinden otoparkları harita üzerinde
+          görüntüleyin.
         </span>
       </div>
       <div class="flex gap-4">
@@ -107,7 +113,12 @@
         <span
           class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
         >
-          Konumunuzu belirleyin veya en yakın otoparkı arayın.
+          Liste (<v-icon
+            color="primary"
+            icon="mdi-format-list-bulleted"
+            size="20"
+          ></v-icon
+          >) tuşuna tıklayarak otopark detaylarını görüntüleyin.
         </span>
       </div>
       <div class="flex gap-4">
@@ -120,8 +131,32 @@
         <span
           class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
         >
-          Otoparkın doluluk durumu, çalışma saatleri ve ücretlendirme
-          bilgilerini kontrol edin.
+          Filtre (<v-icon
+            color="primary"
+            icon="mdi-filter-outline"
+            size="20"
+          ></v-icon
+          >) tuşuna tıklayarak otoparkları doluluk durumuna, çalışma saatlerine
+          ve ücretlendirme bilgilerinie göre filtreleyin.
+        </span>
+      </div>
+      <div class="flex gap-4">
+        <v-icon
+          class="mb-5"
+          color="success"
+          icon="mdi-numeric-4-circle-outline"
+          size="30"
+        ></v-icon>
+        <span
+          class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
+        >
+          Konum (<v-icon
+            color="primary"
+            icon="mdi-crosshairs-gps"
+            size="20"
+          ></v-icon
+          >) tuşuna tıklayarak mevcut konumunuzu bulun ve en yakın otoparkları
+          arayın.
         </span>
       </div>
     </v-sheet>
@@ -190,6 +225,7 @@
                     </p>
                     <p>
                       <span
+                        class="font-semibold"
                         :class="park.isOpen ? 'text-success' : 'text-error'"
                         >{{ park.isOpen ? "Açık" : "Kapalı" }}</span
                       >
@@ -202,9 +238,15 @@
                         >{{ park.freeTime }} dakika</span
                       >
                     </p>
-                    <v-divider v-if="park.driveDistance" class="border-opacity-100"></v-divider>
+                    <v-divider
+                      v-if="park.driveDistance"
+                      class="border-opacity-100"
+                    ></v-divider>
 
-                    <div v-if="park.driveDistance" class="grid grid-cols-3 mt-4">
+                    <div
+                      v-if="park.driveDistance"
+                      class="grid grid-cols-3 mt-4"
+                    >
                       <div class="col-span-2">
                         <p class="text-lightText">
                           Mesafe: {{ park.driveDistance }}
@@ -236,10 +278,11 @@
 
 <script setup>
 import IsparkHeader from "@/components/IsparkHeader.vue";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useIsparkStore } from "@/stores/isparkStore";
 import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
+import parkMarker from "@/assets/park-logo.png";
 
 const isparkStore = useIsparkStore();
 const isHelpActive = ref(false);
@@ -252,7 +295,7 @@ onMounted(() => {
   if (activeTab.value === "map") {
     const mapElement = document.getElementById("map");
     if (mapElement) {
-      const map = L.map(mapElement).setView([41.024, 29.015], 19);
+      const map = L.map(mapElement).setView([41.024, 29.015], 17);
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         minZoom: 15,
@@ -261,27 +304,50 @@ onMounted(() => {
       }).addTo(map);
 
       const markerIcon = new L.Icon({
-        iconUrl: new URL("leaflet/dist/images/marker-icon.png", import.meta.url)
-          .href,
-        iconSize: [25, 41],
+        iconUrl: parkMarker,
+        iconSize: [30, 30],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
         tooltipAnchor: [16, -28],
       });
 
-      L.marker([41.024, 29.015], { icon: markerIcon })
-        .addTo(map)
-        .bindPopup("Üsküdar, Istanbul")
-        .openPopup();
+      watch(isparkData, (newData) => {
+        newData.forEach((park) => {
+          const popupContent = `
+            <div  style="max-width: 250px;;">
+              <div style="font-size: 1rem; font-weight: bold;">${
+                park.parkName
+              }</div>
+              <div style="font-size: 0.9rem; color: gray;">${
+                park.district
+              }</div>
+              <div style="font-size: 0.85rem; color: #333;">
+                <div><strong>${
+                  park.parkType
+                }</strong> - Mevcut Park Alanı:<strong>${
+            park.emptyCapacity
+          }</strong></div>
+                <div><strong class="${
+                  park.isOpen ? "text-success" : "text-error"
+                }">${
+            park.isOpen ? "Open" : "Closed"
+          }</strong> - Çalışma Saatleri:<strong> ${park.workHours}</strong>
+          </div>
+                <div>Ücretsiz Zaman: <strong> ${park.freeTime}</strong> dakika</div>
+              </div>
+            </div>
+          `;
+
+          L.marker([parseFloat(park.lat), parseFloat(park.lng)], {
+            icon: markerIcon,
+          })
+            .addTo(map)
+            .bindPopup(popupContent);
+        });
+      });
     }
   }
 });
 </script>
 
-<style scoped>
-/* #map {
-  height: 80vh;
-  width: 80vw;
-  border-radius: 2rem;
-} */
-</style>
+<style scoped></style>
