@@ -199,60 +199,59 @@
               </v-sheet>
             </div>
 
-            <v-row class="justify-center">
-              <v-col
-                v-for="(park, index) in isparkData"
-                :key="index"
-                cols="12"
-                sm="6"
-              >
-                <v-card class="mx-auto" elevation="12" max-width="350">
+            <v-virtual-scroll
+              :items="isparkData"
+              item-height="200"
+              class="justify-center"
+            >
+              <template #default="{ item }">
+                <v-card class="mx-auto mb-4" elevation="12" max-width="350">
                   <v-card-item>
-                    <v-card-title>{{ park.parkName }}</v-card-title>
-                    <v-card-subtitle class="text-wrap"
-                      >really really really really really really long open
-                      address / {{ park.district }}</v-card-subtitle
-                    >
+                    <v-card-title>{{ item.parkName }}</v-card-title>
+                    <v-card-subtitle class="text-wrap">
+                      really really really long open address /
+                      {{ item.district }}
+                    </v-card-subtitle>
                     <v-divider class="border-opacity-100"></v-divider>
                   </v-card-item>
                   <v-card-text>
                     <p>
-                      <span class="font-semibold">{{ park.parkType }}</span>
+                      <span class="font-semibold">{{ item.parkType }}</span>
                       <span class="text-lightText"> . Mevcut Park Alanı: </span>
-                      <span class="font-semibold">
-                        {{ park.emptyCapacity }}</span
-                      >
+                      <span class="font-semibold">{{
+                        item.emptyCapacity
+                      }}</span>
                     </p>
                     <p>
                       <span
                         class="font-semibold"
-                        :class="park.isOpen ? 'text-success' : 'text-error'"
-                        >{{ park.isOpen ? "Açık" : "Kapalı" }}</span
+                        :class="item.isOpen ? 'text-success' : 'text-error'"
+                        >{{ item.isOpen ? "Açık" : "Kapalı" }}</span
                       >
                       <span class="text-lightText"> . Çalışma Saatleri: </span>
-                      <span class="font-semibold">{{ park.workHours }}</span>
+                      <span class="font-semibold">{{ item.workHours }}</span>
                     </p>
                     <p>
                       <span class="text-lightText">Ücretsiz Zaman: </span>
                       <span class="font-semibold"
-                        >{{ park.freeTime }} dakika</span
+                        >{{ item.freeTime }} dakika</span
                       >
                     </p>
                     <v-divider
-                      v-if="park.driveDistance"
+                      v-if="item.driveDistance"
                       class="border-opacity-100"
                     ></v-divider>
 
                     <div
-                      v-if="park.driveDistance"
+                      v-if="item.driveDistance"
                       class="grid grid-cols-3 mt-4"
                     >
                       <div class="col-span-2">
                         <p class="text-lightText">
-                          Mesafe: {{ park.driveDistance }}
+                          Mesafe: {{ item.driveDistance }}
                         </p>
                         <p class="text-lightText">
-                          Tahmini Varış Süresi: {{ park.driveTime }}
+                          Tahmini Varış Süresi: {{ item.driveTime }}
                         </p>
                       </div>
                       <div class="col-span-1 flex justify-end align-center">
@@ -267,8 +266,8 @@
                     </div>
                   </v-card-text>
                 </v-card>
-              </v-col>
-            </v-row>
+              </template>
+            </v-virtual-scroll>
           </v-container>
         </div>
       </v-window-item>
@@ -281,6 +280,9 @@ import IsparkHeader from "@/components/IsparkHeader.vue";
 import { ref, onMounted, computed, watch } from "vue";
 import { useIsparkStore } from "@/stores/isparkStore";
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import "leaflet.markercluster";
 import * as L from "leaflet";
 import parkMarker from "@/assets/park-logo.png";
 
@@ -295,10 +297,10 @@ onMounted(() => {
   if (activeTab.value === "map") {
     const mapElement = document.getElementById("map");
     if (mapElement) {
-      const map = L.map(mapElement).setView([41.024, 29.015], 17);
+      const map = L.map(mapElement).setView([41.024, 29.015], 15);
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
-        minZoom: 15,
+        minZoom: 13,
         attribution:
           '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       }).addTo(map);
@@ -311,10 +313,15 @@ onMounted(() => {
         tooltipAnchor: [16, -28],
       });
 
+      const markerClusterGroup = L.markerClusterGroup();
+      map.addLayer(markerClusterGroup);
+
       watch(isparkData, (newData) => {
+        markerClusterGroup.clearLayers();
+
         newData.forEach((park) => {
           const popupContent = `
-            <div  style="max-width: 250px;;">
+            <div style="max-width: 250px;">
               <div style="font-size: 1rem; font-weight: bold;">${
                 park.parkName
               }</div>
@@ -324,25 +331,31 @@ onMounted(() => {
               <div style="font-size: 0.85rem; color: #333;">
                 <div><strong>${
                   park.parkType
-                }</strong> - Mevcut Park Alanı:<strong>${
+                }</strong> - Mevcut Park Alanı: <strong>${
             park.emptyCapacity
           }</strong></div>
                 <div><strong class="${
                   park.isOpen ? "text-success" : "text-error"
                 }">${
             park.isOpen ? "Open" : "Closed"
-          }</strong> - Çalışma Saatleri:<strong> ${park.workHours}</strong>
-          </div>
-                <div>Ücretsiz Zaman: <strong> ${park.freeTime}</strong> dakika</div>
+          }</strong> - Çalışma Saatleri: <strong>${
+            park.workHours
+          }</strong></div>
+                <div>Ücretsiz Zaman: <strong>${
+                  park.freeTime
+                }</strong> dakika</div>
               </div>
             </div>
           `;
 
-          L.marker([parseFloat(park.lat), parseFloat(park.lng)], {
-            icon: markerIcon,
-          })
-            .addTo(map)
-            .bindPopup(popupContent);
+          const marker = L.marker(
+            [parseFloat(park.lat), parseFloat(park.lng)],
+            {
+              icon: markerIcon,
+            }
+          ).bindPopup(popupContent);
+
+          markerClusterGroup.addLayer(marker);
         });
       });
     }
