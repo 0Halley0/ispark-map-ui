@@ -16,3 +16,32 @@ export const fetchIsparkData = async () => {
     throw error;
   }
 };
+
+export const fetchNearbyParking = async (lat, lng, radius = 5, limit = 30) => {
+  try {
+    const response = await apiClient.post("/nearest-parking", {
+      lat,
+      lng,
+      radius,
+      limit,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching nearby parking:", error);
+    throw error;
+  }
+};
+
+export const fetchDrivingInfo = async (lat, lng, parkingLots) => {
+  try {
+    const response = await apiClient.post("/drive-info", {
+      lat,
+      lng,
+      parkingLots,
+    });
+    return response.data.enriched_parking_lots;
+  } catch (error) {
+    console.error("Error fetching driving info:", error);
+    throw error;
+  }
+};

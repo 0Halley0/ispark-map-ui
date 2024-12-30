@@ -50,6 +50,7 @@
         Filtre
       </v-btn>
       <v-btn
+        @click="getCurrentPosition"
         class="col-span-1"
         prepend-icon="mdi-crosshairs-gps"
         stacked
@@ -279,12 +280,13 @@
 import IsparkHeader from "@/components/IsparkHeader.vue";
 import { ref, onMounted, computed, watch } from "vue";
 import { useIsparkStore } from "@/stores/isparkStore";
+import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
-import * as L from "leaflet";
 import parkMarker from "@/assets/park-logo.png";
+import carMarker from "@/assets/car-pin.png";
 
 const isparkStore = useIsparkStore();
 const isHelpActive = ref(false);
@@ -292,12 +294,15 @@ const activeTab = ref("map");
 
 const isparkData = computed(() => isparkStore.isparkData?.data || []);
 
+let userMarker; // To hold the user's current location marker
+let map; // Declare map variable to access it globally
+
 onMounted(() => {
   isparkStore.fetchIsparkData();
   if (activeTab.value === "map") {
     const mapElement = document.getElementById("map");
     if (mapElement) {
-      const map = L.map(mapElement).setView([41.024, 29.015], 15);
+      map = L.map(mapElement).setView([41.024, 29.015], 15);
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         minZoom: 13,
@@ -361,6 +366,44 @@ onMounted(() => {
     }
   }
 });
+
+const getCurrentPosition = () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        if (!map) return;
+
+        if (userMarker) {
+          map.removeLayer(userMarker);
+        }
+
+        const userIcon = new L.Icon({
+          iconUrl: carMarker,
+          iconSize: [40, 40],
+          iconAnchor: [20, 40],
+          popupAnchor: [0, -40],
+        });
+
+        userMarker = L.marker([latitude, longitude], { icon: userIcon })
+          .addTo(map);
+
+        map.setView([latitude, longitude], 15);
+      },
+      (error) => {
+        console.error("Geolocation error:", error.message);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  } else {
+    console.error("Geolocation is not supported by this browser.");
+  }
+};
 </script>
 
 <style scoped></style>
