@@ -39,7 +39,7 @@ export const fetchDrivingInfo = async (lat, lng, parkingLots) => {
       lng,
       parkingLots,
     });
-    return response.data.enriched_parking_lots;
+    return response.data;
   } catch (error) {
     console.error("Error fetching driving info:", error);
     throw error;

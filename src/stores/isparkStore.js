@@ -31,7 +31,8 @@ export const useIsparkStore = defineStore("ispark", {
       this.error = null;
       try {
         const data = await fetchNearbyParking(lat, lng, radius, limit);
-        this.nearbyParkingLots = data.data; // Adjust based on API response
+        this.nearbyParkingLots = data.data;
+        await this.fetchDrivingInfo(lat, lng, data.data);
       } catch (error) {
         this.error = "Failed to fetch nearby parking lots";
       } finally {
@@ -44,6 +45,7 @@ export const useIsparkStore = defineStore("ispark", {
       try {
         const enrichedLots = await fetchDrivingInfo(lat, lng, parkingLots);
         this.drivingInfo = enrichedLots;
+        this.isparkData = enrichedLots;
       } catch (error) {
         this.error = "Failed to fetch driving info";
       } finally {

@@ -1,5 +1,5 @@
 <template>
-  <div class="sm:hidden grid grid-cols-1 justify-items-center gap-4 p-4">
+  <div class="grid grid-cols-1 justify-items-center gap-4 p-4">
     <div class="col-span-1">
       <IsparkHeader />
     </div>
@@ -73,7 +73,6 @@
       v-if="isHelpActive"
       class="p-4 col-span-1 text-cardText text-center mx-auto"
       elevation="12"
-      max-width="600"
       rounded="lg"
       width="100%"
     >
@@ -180,6 +179,8 @@
                 class="my-4 w-[90%] mx-auto"
                 elevation="12"
                 type="article"
+                width="100%"
+                max-width="600"
               ></v-skeleton-loader>
             </div>
 
@@ -204,6 +205,8 @@
               :items="isparkData"
               item-height="200"
               class="justify-center"
+              width="100%"
+              max-width="600"
             >
               <template #default="{ item }">
                 <v-card class="mx-auto mb-4" elevation="12" max-width="350">
@@ -294,8 +297,8 @@ const activeTab = ref("map");
 
 const isparkData = computed(() => isparkStore.isparkData?.data || []);
 
-let userMarker; // To hold the user's current location marker
-let map; // Declare map variable to access it globally
+let userMarker;
+let map;
 
 onMounted(() => {
   isparkStore.fetchIsparkData();
@@ -370,7 +373,7 @@ onMounted(() => {
 const getCurrentPosition = () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const { latitude, longitude } = position.coords;
 
         if (!map) return;
@@ -386,10 +389,68 @@ const getCurrentPosition = () => {
           popupAnchor: [0, -40],
         });
 
-        userMarker = L.marker([latitude, longitude], { icon: userIcon })
-          .addTo(map);
+        userMarker = L.marker([latitude, longitude], { icon: userIcon }).addTo(
+          map
+        );
 
-        map.setView([latitude, longitude], 15);
+        map.setView([latitude, longitude], 19);
+
+        try {
+          await isparkStore.fetchNearbyParking(latitude, longitude);
+          const nearbyParkingLots = isparkStore.getNearbyParkingLots || [];
+          if (nearbyParkingLots.length > 0) {
+            const markerIcon = new L.Icon({
+              iconUrl: parkMarker,
+              iconSize: [30, 30],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
+              tooltipAnchor: [16, -28],
+            });
+
+            const markerClusterGroup = L.markerClusterGroup();
+            nearbyParkingLots.forEach((lot) => {
+              const popupContent = `
+                <div style="max-width: 250px;">
+                  <div style="font-size: 1rem; font-weight: bold;">${
+                    lot.parkName
+                  }</div>
+                  <div style="font-size: 0.9rem; color: gray;">${
+                    lot.district
+                  }</div>
+                  <div style="font-size: 0.85rem; color: #333;">
+                    <div><strong>${
+                      lot.parkType
+                    }</strong> - Mevcut Park Alanı: <strong>${
+                lot.emptyCapacity
+              }</strong></div>
+                    <div><strong class="${
+                      lot.isOpen ? "text-success" : "text-error"
+                    }">${
+                lot.isOpen ? "Open" : "Closed"
+              }</strong> - Çalışma Saatleri: <strong>${
+                lot.workHours
+              }</strong></div>
+                    <div>Ücretsiz Zaman: <strong>${
+                      lot.freeTime
+                    }</strong> dakika</div>
+                  </div>
+                </div>
+              `;
+
+              const marker = L.marker([lot.lat, lot.lng], {
+                icon: markerIcon,
+              }).bindPopup(popupContent);
+
+              markerClusterGroup.addLayer(marker);
+            });
+
+            map.addLayer(markerClusterGroup);
+          } else {
+            console.warn("No nearby parking lots found.");
+          }
+        } catch (error) {
+          console.error("Failed to fetch nearby parking lots:", error);
+        }
       },
       (error) => {
         console.error("Geolocation error:", error.message);
