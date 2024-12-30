@@ -42,6 +42,7 @@
         Ara
       </v-btn>
       <v-btn
+        @click="isFilterActive = !isFilterActive"
         class="col-span-1"
         prepend-icon="mdi-filter-outline"
         stacked
@@ -69,97 +70,131 @@
       </v-btn>
     </div>
 
-    <v-sheet
-      v-if="isHelpActive"
-      class="p-4 col-span-1 text-cardText text-center mx-auto"
-      elevation="12"
-      rounded="lg"
-      width="100%"
-    >
-      <v-icon
-        class="mb-5"
-        color="success"
-        icon="mdi-help-circle"
-        size="80"
-      ></v-icon>
+    <transition name="fade-slide">
+      <v-sheet
+        v-if="isHelpActive"
+        class="p-4 col-span-1 text-cardText text-center mx-auto"
+        elevation="12"
+        rounded="lg"
+        width="100%"
+      >
+        <v-icon
+          class="mb-5"
+          color="success"
+          icon="mdi-help-circle"
+          size="80"
+        ></v-icon>
 
-      <h2 class="text-h5 mb-6">Nasıl Kullanılır?</h2>
-      <div class="flex gap-4">
-        <v-icon
-          class="mb-5"
-          color="success"
-          icon="mdi-numeric-1-circle-outline"
-          size="30"
-        ></v-icon>
-        <span
-          class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
-        >
-          Harita (<v-icon
+        <h2 class="text-h5 mb-6">Nasıl Kullanılır?</h2>
+        <div class="flex gap-4">
+          <v-icon
+            class="mb-5"
+            color="success"
+            icon="mdi-numeric-1-circle-outline"
+            size="30"
+          ></v-icon>
+          <span
+            class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
+          >
+            Harita (<v-icon
+              color="primary"
+              icon="mdi-map-search"
+              size="20"
+            ></v-icon
+            >) tuşuna tıklayarak uygulama üzerinden otoparkları harita üzerinde
+            görüntüleyin.
+          </span>
+        </div>
+        <div class="flex gap-4">
+          <v-icon
+            class="mb-5"
+            color="success"
+            icon="mdi-numeric-2-circle-outline"
+            size="30"
+          ></v-icon>
+          <span
+            class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
+          >
+            Liste (<v-icon
+              color="primary"
+              icon="mdi-format-list-bulleted"
+              size="20"
+            ></v-icon
+            >) tuşuna tıklayarak otopark detaylarını görüntüleyin.
+          </span>
+        </div>
+        <div class="flex gap-4">
+          <v-icon
+            class="mb-5"
+            color="success"
+            icon="mdi-numeric-3-circle-outline"
+            size="30"
+          ></v-icon>
+          <span
+            class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
+          >
+            Filtre (<v-icon
+              color="primary"
+              icon="mdi-filter-outline"
+              size="20"
+            ></v-icon
+            >) tuşuna tıklayarak otoparkları doluluk durumuna, çalışma
+            saatlerine ve ücretlendirme bilgilerinie göre filtreleyin.
+          </span>
+        </div>
+        <div class="flex gap-4">
+          <v-icon
+            class="mb-5"
+            color="success"
+            icon="mdi-numeric-4-circle-outline"
+            size="30"
+          ></v-icon>
+          <span
+            class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
+          >
+            Konum (<v-icon
+              color="primary"
+              icon="mdi-crosshairs-gps"
+              size="20"
+            ></v-icon
+            >) tuşuna tıklayarak mevcut konumunuzu bulun ve en yakın otoparkları
+            arayın.
+          </span>
+        </div>
+      </v-sheet>
+    </transition>
+
+    <transition name="fade-slide">
+      <v-sheet
+        v-if="isFilterActive"
+        class="p-4 col-span-1 text-cardText text-center mx-auto"
+        elevation="12"
+        rounded="lg"
+        width="100%"
+      >
+        <h2 class="text-h5">Filtre</h2>
+        <div class="text-start">
+          <v-radio-group inline>
+            <v-radio color="primary" label="Kapalı Otopark" value="0"></v-radio>
+            <v-radio color="primary" label="Açık Otopark" value="1"></v-radio>
+          </v-radio-group>
+           <v-checkbox
             color="primary"
-            icon="mdi-map-search"
-            size="20"
-          ></v-icon
-          >) tuşuna tıklayarak uygulama üzerinden otoparkları harita üzerinde
-          görüntüleyin.
-        </span>
-      </div>
-      <div class="flex gap-4">
-        <v-icon
-          class="mb-5"
-          color="success"
-          icon="mdi-numeric-2-circle-outline"
-          size="30"
-        ></v-icon>
-        <span
-          class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
-        >
-          Liste (<v-icon
+            label="Sadece boş park yerlerini göster"
+          ></v-checkbox>
+          <span
+            >Ücretsiz Zaman ({{ freeTimeRange[0] }} -
+            {{ freeTimeRange[1] }} dk)</span
+          >
+          <v-range-slider
+            v-model="freeTimeRange"
             color="primary"
-            icon="mdi-format-list-bulleted"
-            size="20"
-          ></v-icon
-          >) tuşuna tıklayarak otopark detaylarını görüntüleyin.
-        </span>
-      </div>
-      <div class="flex gap-4">
-        <v-icon
-          class="mb-5"
-          color="success"
-          icon="mdi-numeric-3-circle-outline"
-          size="30"
-        ></v-icon>
-        <span
-          class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
-        >
-          Filtre (<v-icon
-            color="primary"
-            icon="mdi-filter-outline"
-            size="20"
-          ></v-icon
-          >) tuşuna tıklayarak otoparkları doluluk durumuna, çalışma saatlerine
-          ve ücretlendirme bilgilerinie göre filtreleyin.
-        </span>
-      </div>
-      <div class="flex gap-4">
-        <v-icon
-          class="mb-5"
-          color="success"
-          icon="mdi-numeric-4-circle-outline"
-          size="30"
-        ></v-icon>
-        <span
-          class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
-        >
-          Konum (<v-icon
-            color="primary"
-            icon="mdi-crosshairs-gps"
-            size="20"
-          ></v-icon
-          >) tuşuna tıklayarak mevcut konumunuzu bulun ve en yakın otoparkları
-          arayın.
-        </span>
-      </div>
-    </v-sheet>
+            step="15"
+            thumb-label
+          ></v-range-slider>
+        </div>
+      </v-sheet>
+    </transition>
 
     <v-tabs-window v-model="activeTab">
       <v-window-item value="map">
@@ -252,10 +287,12 @@
                     >
                       <div class="col-span-2">
                         <p class="text-lightText">
-                          Mesafe: {{ item.driveDistance }}
+                          Mesafe:
+                          {{ parseFloat(item.driveDistance).toFixed(1) }} km
                         </p>
                         <p class="text-lightText">
-                          Tahmini Varış Süresi: {{ item.driveTime }}
+                          Tahmini Varış Süresi:
+                          {{ parseInt(item.driveTime, 10) }} dk
                         </p>
                       </div>
                       <div class="col-span-1 flex justify-end align-center">
@@ -293,12 +330,21 @@ import carMarker from "@/assets/car-pin.png";
 
 const isparkStore = useIsparkStore();
 const isHelpActive = ref(false);
+const isFilterActive = ref(false);
 const activeTab = ref("map");
-
+const freeTimeRange = ref([0, 120]);
 const isparkData = computed(() => isparkStore.isparkData?.data || []);
 
 let userMarker;
 let map;
+
+watch(activeTab, (newTab) => {
+  if (newTab === "map" && map) {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+  }
+});
 
 onMounted(() => {
   isparkStore.fetchIsparkData();
@@ -467,4 +513,17 @@ const getCurrentPosition = () => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.5s ease;
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+</style>
