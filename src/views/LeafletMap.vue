@@ -32,169 +32,20 @@
       </v-btn>
     </div>
 
-    <div class="col-span-1 w-full grid grid-cols-4 gap-4">
-      <v-btn
-        class="col-span-1"
-        prepend-icon="mdi-magnify"
-        stacked
-        variant="tonal"
-      >
-        Ara
-      </v-btn>
-      <v-btn
-        @click="isFilterActive = !isFilterActive"
-        class="col-span-1"
-        prepend-icon="mdi-filter-outline"
-        stacked
-        variant="tonal"
-      >
-        Filtre
-      </v-btn>
-      <v-btn
-        @click="getCurrentPosition"
-        class="col-span-1"
-        prepend-icon="mdi-crosshairs-gps"
-        stacked
-        variant="tonal"
-      >
-        Konum
-      </v-btn>
-      <v-btn
-        @click="isHelpActive = !isHelpActive"
-        class="col-span-1"
-        prepend-icon="mdi-help"
-        stacked
-        variant="tonal"
-      >
-        Yardım
-      </v-btn>
-    </div>
+    <ActionButtons
+      :isHelpActive="isHelpActive"
+      :isFilterActive="isFilterActive"
+      :toggleHelp="toggleHelp"
+      :toggleFilter="toggleFilter"
+      :getCurrentPosition="getCurrentPosition"
+    />
 
-    <transition name="fade-slide">
-      <v-sheet
-        v-if="isHelpActive"
-        class="p-4 col-span-1 text-cardText text-center mx-auto"
-        elevation="12"
-        rounded="lg"
-        width="100%"
-      >
-        <v-icon
-          class="mb-5"
-          color="success"
-          icon="mdi-help-circle"
-          size="80"
-        ></v-icon>
+    <HelpSheet :isHelpActive="isHelpActive" />
 
-        <h2 class="text-h5 mb-6">Nasıl Kullanılır?</h2>
-        <div class="flex gap-4">
-          <v-icon
-            class="mb-5"
-            color="success"
-            icon="mdi-numeric-1-circle-outline"
-            size="30"
-          ></v-icon>
-          <span
-            class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
-          >
-            Harita (<v-icon
-              color="primary"
-              icon="mdi-map-search"
-              size="20"
-            ></v-icon
-            >) tuşuna tıklayarak uygulama üzerinden otoparkları harita üzerinde
-            görüntüleyin.
-          </span>
-        </div>
-        <div class="flex gap-4">
-          <v-icon
-            class="mb-5"
-            color="success"
-            icon="mdi-numeric-2-circle-outline"
-            size="30"
-          ></v-icon>
-          <span
-            class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
-          >
-            Liste (<v-icon
-              color="primary"
-              icon="mdi-format-list-bulleted"
-              size="20"
-            ></v-icon
-            >) tuşuna tıklayarak otopark detaylarını görüntüleyin.
-          </span>
-        </div>
-        <div class="flex gap-4">
-          <v-icon
-            class="mb-5"
-            color="success"
-            icon="mdi-numeric-3-circle-outline"
-            size="30"
-          ></v-icon>
-          <span
-            class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
-          >
-            Filtre (<v-icon
-              color="primary"
-              icon="mdi-filter-outline"
-              size="20"
-            ></v-icon
-            >) tuşuna tıklayarak otoparkları doluluk durumuna, çalışma
-            saatlerine ve ücretlendirme bilgilerinie göre filtreleyin.
-          </span>
-        </div>
-        <div class="flex gap-4">
-          <v-icon
-            class="mb-5"
-            color="success"
-            icon="mdi-numeric-4-circle-outline"
-            size="30"
-          ></v-icon>
-          <span
-            class="mb-4 text-cardText text-justify text-medium-emphasis text-body-2"
-          >
-            Konum (<v-icon
-              color="primary"
-              icon="mdi-crosshairs-gps"
-              size="20"
-            ></v-icon
-            >) tuşuna tıklayarak mevcut konumunuzu bulun ve en yakın otoparkları
-            arayın.
-          </span>
-        </div>
-      </v-sheet>
-    </transition>
-
-    <transition name="fade-slide">
-      <v-sheet
-        v-if="isFilterActive"
-        class="p-4 col-span-1 text-cardText text-center mx-auto"
-        elevation="12"
-        rounded="lg"
-        width="100%"
-      >
-        <h2 class="text-h5">Filtre</h2>
-        <div class="text-start">
-          <v-radio-group inline>
-            <v-radio color="primary" label="Kapalı Otopark" value="0"></v-radio>
-            <v-radio color="primary" label="Açık Otopark" value="1"></v-radio>
-          </v-radio-group>
-           <v-checkbox
-            color="primary"
-            label="Sadece boş park yerlerini göster"
-          ></v-checkbox>
-          <span
-            >Ücretsiz Zaman ({{ freeTimeRange[0] }} -
-            {{ freeTimeRange[1] }} dk)</span
-          >
-          <v-range-slider
-            v-model="freeTimeRange"
-            color="primary"
-            step="15"
-            thumb-label
-          ></v-range-slider>
-        </div>
-      </v-sheet>
-    </transition>
+    <FilterSheet
+      :isFilterActive="isFilterActive"
+      :toggleFilter="toggleFilter"
+    />
 
     <v-tabs-window v-model="activeTab">
       <v-window-item value="map">
@@ -244,69 +95,7 @@
               max-width="600"
             >
               <template #default="{ item }">
-                <v-card class="mx-auto mb-4" elevation="12" max-width="350">
-                  <v-card-item>
-                    <v-card-title>{{ item.parkName }}</v-card-title>
-                    <v-card-subtitle class="text-wrap">
-                      really really really long open address /
-                      {{ item.district }}
-                    </v-card-subtitle>
-                    <v-divider class="border-opacity-100"></v-divider>
-                  </v-card-item>
-                  <v-card-text>
-                    <p>
-                      <span class="font-semibold">{{ item.parkType }}</span>
-                      <span class="text-lightText"> . Mevcut Park Alanı: </span>
-                      <span class="font-semibold">{{
-                        item.emptyCapacity
-                      }}</span>
-                    </p>
-                    <p>
-                      <span
-                        class="font-semibold"
-                        :class="item.isOpen ? 'text-success' : 'text-error'"
-                        >{{ item.isOpen ? "Açık" : "Kapalı" }}</span
-                      >
-                      <span class="text-lightText"> . Çalışma Saatleri: </span>
-                      <span class="font-semibold">{{ item.workHours }}</span>
-                    </p>
-                    <p>
-                      <span class="text-lightText">Ücretsiz Zaman: </span>
-                      <span class="font-semibold"
-                        >{{ item.freeTime }} dakika</span
-                      >
-                    </p>
-                    <v-divider
-                      v-if="item.driveDistance"
-                      class="border-opacity-100"
-                    ></v-divider>
-
-                    <div
-                      v-if="item.driveDistance"
-                      class="grid grid-cols-3 mt-4"
-                    >
-                      <div class="col-span-2">
-                        <p class="text-lightText">
-                          Mesafe:
-                          {{ parseFloat(item.driveDistance).toFixed(1) }} km
-                        </p>
-                        <p class="text-lightText">
-                          Tahmini Varış Süresi:
-                          {{ parseInt(item.driveTime, 10) }} dk
-                        </p>
-                      </div>
-                      <div class="col-span-1 flex justify-end align-center">
-                        <v-btn
-                          icon
-                          color="primary"
-                          class="flex justify-center align-center"
-                        >
-                          <v-icon size="2rem">mdi-car-arrow-right</v-icon>
-                        </v-btn>
-                      </div>
-                    </div>
-                  </v-card-text>
-                </v-card>
+                <ParkingLotCard :item="item" />
               </template>
             </v-virtual-scroll>
           </v-container>
@@ -318,6 +107,10 @@
 
 <script setup>
 import IsparkHeader from "@/components/IsparkHeader.vue";
+import ActionButtons from "@/components/ActionButtons.vue";
+import ParkingLotCard from "@/components/ParkingLotCard.vue";
+import HelpSheet from "@/components/HelpSheet.vue";
+import FilterSheet from "@/components/FilterSheet.vue";
 import { ref, onMounted, computed, watch } from "vue";
 import { useIsparkStore } from "@/stores/isparkStore";
 import * as L from "leaflet";
@@ -331,10 +124,16 @@ import carMarker from "@/assets/car-pin.png";
 const isparkStore = useIsparkStore();
 const isHelpActive = ref(false);
 const isFilterActive = ref(false);
+const toggleHelp = () => {
+  isHelpActive.value = !isHelpActive.value;
+  isFilterActive.value = false;
+};
+const toggleFilter = () => {
+  isFilterActive.value = !isFilterActive.value;
+  isHelpActive.value = false;
+};
 const activeTab = ref("map");
-const freeTimeRange = ref([0, 120]);
 const isparkData = computed(() => isparkStore.isparkData?.data || []);
-
 let userMarker;
 let map;
 
@@ -391,7 +190,7 @@ onMounted(() => {
                 <div><strong class="${
                   park.isOpen ? "text-success" : "text-error"
                 }">${
-            park.isOpen ? "Open" : "Closed"
+            park.isOpen ? "Açık" : "Kapalı"
           }</strong> - Çalışma Saatleri: <strong>${
             park.workHours
           }</strong></div>
@@ -472,7 +271,7 @@ const getCurrentPosition = () => {
                     <div><strong class="${
                       lot.isOpen ? "text-success" : "text-error"
                     }">${
-                lot.isOpen ? "Open" : "Closed"
+                lot.isOpen ? "Açık" : "Kapalı"
               }</strong> - Çalışma Saatleri: <strong>${
                 lot.workHours
               }</strong></div>
@@ -513,17 +312,4 @@ const getCurrentPosition = () => {
 };
 </script>
 
-<style scoped>
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.5s ease;
-}
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-</style>
+<style scoped></style>
