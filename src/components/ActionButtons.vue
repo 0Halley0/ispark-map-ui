@@ -1,13 +1,5 @@
 <template>
-  <div class="col-span-1 w-full grid grid-cols-4 gap-4">
-    <v-btn
-      class="col-span-1"
-      prepend-icon="mdi-magnify"
-      stacked
-      variant="tonal"
-    >
-      Ara
-    </v-btn>
+  <div class="col-span-1 md:hidden w-full grid grid-cols-3 gap-4">
     <v-btn
       @click="toggleFilter"
       class="col-span-1"

@@ -11,7 +11,7 @@
       </p>
     </div>
 
-    <div class="col-span-1 w-full grid grid-cols-2 gap-4">
+    <div class="col-span-1 md:hidden w-full grid grid-cols-2 gap-4">
       <v-btn
         @click="activeTab = 'map'"
         class="col-span-1"
@@ -48,11 +48,67 @@
     />
 
     <v-tabs-window v-model="activeTab">
-      <v-window-item value="map">
-        <div class="col-span-1 h-[80vh] w-[90vw] rounded-2xl" id="map"></div>
-      </v-window-item>
+      <v-window-item
+        class="flex mx-8 border-double border-4 rounded-xl p-3"
+        value="map"
+      >
+        <div
+          class="col-span-1 h-[80vh] w-[90vw] md:w-[65vw] rounded-2xl"
+          id="map"
+        ></div>
 
-      <v-window-item value="list">
+        <v-container
+          class="hidden md:block md:w-[35%] h-[80vh] overflow-auto mx-auto"
+        >
+          <div v-if="isparkStore.isLoadingState">
+            <v-skeleton-loader
+              v-for="n in 6"
+              :key="n"
+              class="my-4 -mt-4 w-[90%] mx-auto"
+              elevation="12"
+              type="article"
+              width="100%"
+              max-width="600"
+            ></v-skeleton-loader>
+          </div>
+
+          <div v-else-if="isparkStore.getError">
+            <v-sheet
+              class="p-6 col-span-1 text-cardText text-center mx-auto"
+              elevation="12"
+              max-width="600"
+              rounded="lg"
+              width="100%"
+            >
+              <v-icon color="red" size="80" class="mb-5"
+                >mdi-alert-circle</v-icon
+              >
+              <p class="text-red-500 font-bold">
+                Veriler alınamadı. Lütfen daha sonra tekrar deneyiniz.
+              </p>
+            </v-sheet>
+          </div>
+
+          <v-virtual-scroll
+            :items="isparkData"
+            item-height="200"
+            class="justify-center hide-scroll -mt-4"
+            width="100%"
+            max-width="600"
+          >
+            <template #default="{ item }">
+              <ParkingLotCard :item="item" />
+            </template>
+          </v-virtual-scroll>
+        </v-container>
+      </v-window-item>
+      <div class="hidden md:inline">
+        <h2 class="text-center text-7xl font-light mt-40 mb-32 col-span-5">
+          Nasıl Kullanılır?
+        </h2>
+        <HelpSteps />
+      </div>
+      <v-window-item class="border-double border-4 rounded-xl p-3" value="list">
         <div class="col-span-1">
           <h3 class="text-h6 text-center mb-4">İspark Otopark Listesi</h3>
           <v-container
@@ -110,6 +166,7 @@ import IsparkHeader from "@/components/IsparkHeader.vue";
 import ActionButtons from "@/components/ActionButtons.vue";
 import ParkingLotCard from "@/components/ParkingLotCard.vue";
 import HelpSheet from "@/components/HelpSheet.vue";
+import HelpSteps from "@/components/HelpSteps.vue";
 import FilterSheet from "@/components/FilterSheet.vue";
 import { ref, onMounted, computed, watch } from "vue";
 import { useIsparkStore } from "@/stores/isparkStore";
@@ -312,4 +369,6 @@ const getCurrentPosition = () => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>
