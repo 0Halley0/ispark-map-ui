@@ -3,6 +3,8 @@ import {
   fetchIsparkData,
   fetchNearbyParking,
   fetchDrivingInfo,
+  fetchParkingStatistics,
+  fetchFilteredParking,
 } from "@/services/isparkApi";
 
 export const useIsparkStore = defineStore("ispark", {
@@ -10,6 +12,8 @@ export const useIsparkStore = defineStore("ispark", {
     isparkData: [],
     nearbyParkingLots: [],
     drivingInfo: [],
+    parkingStatistics: null,
+    filteredParkingLots: [],
     isLoading: false,
     error: null,
   }),
@@ -52,11 +56,46 @@ export const useIsparkStore = defineStore("ispark", {
         this.isLoading = false;
       }
     },
+    async fetchParkingStatistics() {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const stats = await fetchParkingStatistics();
+        this.parkingStatistics = stats.data;
+      } catch (error) {
+        this.error = "Failed to fetch parking statistics";
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async fetchFilteredParking(
+      emptyCapacity = true,
+      freeTime = true,
+      parkType = null
+    ) {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const filteredLots = await fetchFilteredParking(
+          emptyCapacity,
+          freeTime,
+          parkType
+        );
+        this.filteredParkingLots = filteredLots.data;
+        this.isparkData = filteredLots;
+      } catch (error) {
+        this.error = "Failed to fetch filtered parking lots";
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
   getters: {
     getIsparkData: (state) => state.isparkData,
     getNearbyParkingLots: (state) => state.nearbyParkingLots,
     getDrivingInfo: (state) => state.drivingInfo,
+    getParkingStatistics: (state) => state.parkingStatistics,
+    getFilteredParkingLots: (state) => state.filteredParkingLots,
     isLoadingState: (state) => state.isLoading,
     getError: (state) => state.error,
   },

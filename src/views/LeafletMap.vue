@@ -35,8 +35,10 @@
     <ActionButtons
       :isHelpActive="isHelpActive"
       :isFilterActive="isFilterActive"
+      :isGraphActive="isGraphActive"
       :toggleHelp="toggleHelp"
       :toggleFilter="toggleFilter"
+      :toggleGraph="toggleGraph"
       :getCurrentPosition="getCurrentPosition"
     />
 
@@ -44,8 +46,9 @@
 
     <FilterSheet
       :isFilterActive="isFilterActive"
-      :toggleFilter="toggleFilter"
+      :onFilterChange="handleFilterChange"
     />
+    <GraphSheet :isGraphActive="isGraphActive" />
 
     <v-tabs-window v-model="activeTab">
       <v-window-item
@@ -168,6 +171,7 @@ import ParkingLotCard from "@/components/ParkingLotCard.vue";
 import HelpSheet from "@/components/HelpSheet.vue";
 import HelpSteps from "@/components/HelpSteps.vue";
 import FilterSheet from "@/components/FilterSheet.vue";
+import GraphSheet from "@/components/GraphSheet.vue";
 import { ref, onMounted, computed, watch } from "vue";
 import { useIsparkStore } from "@/stores/isparkStore";
 import * as L from "leaflet";
@@ -181,13 +185,21 @@ import carMarker from "@/assets/car-pin.png";
 const isparkStore = useIsparkStore();
 const isHelpActive = ref(false);
 const isFilterActive = ref(false);
+const isGraphActive = ref(false);
 const toggleHelp = () => {
   isHelpActive.value = !isHelpActive.value;
   isFilterActive.value = false;
+  isGraphActive.value = false;
 };
 const toggleFilter = () => {
   isFilterActive.value = !isFilterActive.value;
   isHelpActive.value = false;
+  isGraphActive.value = false;
+};
+const toggleGraph = () => {
+  isGraphActive.value = !isGraphActive.value;
+  isHelpActive.value = false;
+  isFilterActive.value = false;
 };
 const activeTab = ref("map");
 const isparkData = computed(() => isparkStore.isparkData?.data || []);
@@ -201,7 +213,10 @@ watch(activeTab, (newTab) => {
     }, 200);
   }
 });
-
+const handleFilterChange = (filters) => {
+  const { emptyCapacity, freeTime, parkType } = filters;
+  isparkStore.fetchFilteredParking(emptyCapacity, freeTime, parkType);
+};
 onMounted(() => {
   isparkStore.fetchIsparkData();
   if (activeTab.value === "map") {
@@ -369,6 +384,4 @@ const getCurrentPosition = () => {
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

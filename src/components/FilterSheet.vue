@@ -9,26 +9,20 @@
     >
       <h2 class="text-h5">Filtre</h2>
       <div class="text-start">
-        <v-radio-group v-model="selectedParkingType" inline>
-          <v-radio color="primary" label="Kapalı Otopark" value="0"></v-radio>
-          <v-radio color="primary" label="Açık Otopark" value="1"></v-radio>
-        </v-radio-group>
         <v-checkbox
           v-model="showOnlyAvailable"
           color="primary"
           label="Sadece boş park yerlerini göster"
+          @change="applyFilter"
         ></v-checkbox>
-        <span
-          >Ücretsiz Zaman ({{ freeTimeRange[0] }} -
-          {{ freeTimeRange[1] }} dk)</span
-        >
-        <v-range-slider
-          v-model="freeTimeRange"
+        <v-checkbox
+          v-model="showOnlyFreeTime"
           color="primary"
-          step="15"
-          thumb-label
-        ></v-range-slider>
+          label="Sadece ücretsiz park yerlerini göster"
+          @change="applyFilter"
+        ></v-checkbox>
       </div>
+      <v-btn @click="applyFilter" color="primary" class="mt-4"> Uygula </v-btn>
     </v-sheet>
   </transition>
 </template>
@@ -36,13 +30,23 @@
 <script setup>
 import { defineProps, ref } from "vue";
 
-defineProps({
+const props = defineProps({
   isFilterActive: Boolean,
+  onFilterChange: Function,
 });
-const selectedParkingType = ref("0");
+
 const showOnlyAvailable = ref(false);
-const freeTimeRange = ref([0, 120]);
+const showOnlyFreeTime = ref(false);
+
+const applyFilter = () => {
+  const filters = {
+    emptyCapacity: showOnlyAvailable.value,
+    freeTime: showOnlyFreeTime.value,
+  };
+  props.onFilterChange(filters);
+};
 </script>
+
 <style scoped>
 .fade-slide-enter-active,
 .fade-slide-leave-active {

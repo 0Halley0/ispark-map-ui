@@ -45,3 +45,31 @@ export const fetchDrivingInfo = async (lat, lng, parkingLots) => {
     throw error;
   }
 };
+
+export const fetchParkingStatistics = async () => {
+  try {
+    const response = await apiClient.get("/parking-statistics");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching parking statistics:", error);
+    throw error;
+  }
+};
+
+export const fetchFilteredParking = async (
+  emptyCapacity = true,
+  freeTime = true,
+  parkType = null
+) => {
+  try {
+    const response = await apiClient.post("/filter-parking", {
+      emptyCapacity,
+      freeTime,
+      parkType,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching filtered parking lots:", error);
+    throw error;
+  }
+};
