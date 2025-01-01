@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto mb-4" elevation="12" max-width="350">
+  <v-card class="mx-auto mb-4" elevation="12">
     <v-card-item>
       <v-card-title>{{ item.parkName }}</v-card-title>
       <v-card-subtitle class="text-wrap">

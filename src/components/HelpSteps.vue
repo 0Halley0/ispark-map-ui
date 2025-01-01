@@ -3,8 +3,8 @@
     <div class="flex my-32 mx-16 col-span-3 gap-4 slide-up">
       <v-icon
         color="primary"
-        size="80"
-        icon="mdi-numeric-1-circle-outline"
+        size="200"
+        icon="mdi-numeric-1"
       ></v-icon>
       <span class="text-left text-4xl font-light">
         Harita üzerindeki
@@ -24,16 +24,16 @@
       </span>
       <v-icon
         color="primary"
-        size="80"
-        icon="mdi-numeric-2-circle-outline"
+        size="200"
+        icon="mdi-numeric-2"
       ></v-icon>
     </div>
 
     <div class="flex my-32 mx-16 col-span-3 gap-4 slide-up">
       <v-icon
         color="primary"
-        size="80"
-        icon="mdi-numeric-3-circle-outline"
+        size="200"
+        icon="mdi-numeric-3"
       ></v-icon>
       <span class="text-left text-4xl font-light">
         Filtre (<v-icon
@@ -58,8 +58,8 @@
       </span>
       <v-icon
         color="primary"
-        size="80"
-        icon="mdi-numeric-4-circle-outline"
+        size="200"
+        icon="mdi-numeric-4"
       ></v-icon>
     </div>
   </div>

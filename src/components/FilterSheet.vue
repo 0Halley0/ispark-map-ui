@@ -13,16 +13,19 @@
           v-model="showOnlyAvailable"
           color="primary"
           label="Sadece boş park yerlerini göster"
-          @change="applyFilter"
         ></v-checkbox>
         <v-checkbox
+          class="-my-8"
           v-model="showOnlyFreeTime"
           color="primary"
           label="Sadece ücretsiz park yerlerini göster"
-          @change="applyFilter"
         ></v-checkbox>
       </div>
-      <v-btn @click="applyFilter" color="primary" class="mt-4"> Uygula </v-btn>
+      <div class="flex justify-end p-4">
+        <v-btn @click="applyFilter" color="primary" >
+          Uygula
+        </v-btn>
+      </div>
     </v-sheet>
   </transition>
 </template>

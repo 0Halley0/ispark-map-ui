@@ -52,58 +52,63 @@
 
     <v-tabs-window v-model="activeTab">
       <v-window-item
-        class="flex mx-8 border-double border-4 rounded-xl p-3"
+        class="mx-8 border-double border-4 rounded-xl p-3"
         value="map"
       >
-        <div
-          class="col-span-1 h-[80vh] w-[90vw] md:w-[65vw] rounded-2xl"
-          id="map"
-        ></div>
+        <FilterMenu
+          :isFilterMenuActive="isFilterMenuActive"
+          :onFilterChange="handleFilterChange"
+          :toggleFilterMenu="toggleFilterMenu"
+        />
+        <div class="flex">
+          <div
+            class="col-span-1 h-[80vh] w-[90vw] md:w-[65vw] rounded-2xl"
+            id="map"
+          ></div>
 
-        <v-container
-          class="hidden md:block md:w-[35%] h-[80vh] overflow-auto mx-auto"
-        >
-          <div v-if="isparkStore.isLoadingState">
-            <v-skeleton-loader
-              v-for="n in 6"
-              :key="n"
-              class="my-4 -mt-4 w-[90%] mx-auto"
-              elevation="12"
-              type="article"
-              width="100%"
-              max-width="600"
-            ></v-skeleton-loader>
-          </div>
+          <v-container
+            class="hidden md:block md:w-[35%] h-[80vh] overflow-auto mx-auto"
+          >
+            <div v-if="isparkStore.isLoadingState">
+              <v-skeleton-loader
+                v-for="n in 6"
+                :key="n"
+                class="my-4 -mt-4 w-[90%] mx-auto"
+                elevation="12"
+                type="article"
+                width="100%"
+              ></v-skeleton-loader>
+            </div>
 
-          <div v-else-if="isparkStore.getError">
-            <v-sheet
-              class="p-6 col-span-1 text-cardText text-center mx-auto"
-              elevation="12"
-              max-width="600"
-              rounded="lg"
+            <div v-else-if="isparkStore.getError">
+              <v-sheet
+                class="p-6 col-span-1 text-cardText text-center mx-auto"
+                elevation="12"
+                max-width="600"
+                rounded="lg"
+                width="100%"
+              >
+                <v-icon color="red" size="80" class="mb-5"
+                  >mdi-alert-circle</v-icon
+                >
+                <p class="text-red-500 font-bold">
+                  Veriler alınamadı. Lütfen daha sonra tekrar deneyiniz.
+                </p>
+              </v-sheet>
+            </div>
+
+            <v-virtual-scroll
+              :items="isparkData"
+              item-height="200"
+              class="justify-center hide-scroll -mt-4"
               width="100%"
             >
-              <v-icon color="red" size="80" class="mb-5"
-                >mdi-alert-circle</v-icon
-              >
-              <p class="text-red-500 font-bold">
-                Veriler alınamadı. Lütfen daha sonra tekrar deneyiniz.
-              </p>
-            </v-sheet>
-          </div>
-
-          <v-virtual-scroll
-            :items="isparkData"
-            item-height="200"
-            class="justify-center hide-scroll -mt-4"
-            width="100%"
-            max-width="600"
-          >
-            <template #default="{ item }">
-              <ParkingLotCard :item="item" />
-            </template>
-          </v-virtual-scroll>
-        </v-container>
+              <template #default="{ item }">
+                <ParkingLotCard :item="item" />
+              </template>
+            </v-virtual-scroll>
+          </v-container>
+        </div>
       </v-window-item>
       <div class="hidden md:inline">
         <h2 class="text-center text-7xl font-light mt-40 mb-32 col-span-5">
@@ -171,6 +176,7 @@ import ParkingLotCard from "@/components/ParkingLotCard.vue";
 import HelpSheet from "@/components/HelpSheet.vue";
 import HelpSteps from "@/components/HelpSteps.vue";
 import FilterSheet from "@/components/FilterSheet.vue";
+import FilterMenu from "@/components/FilterMenu.vue";
 import GraphSheet from "@/components/GraphSheet.vue";
 import { ref, onMounted, computed, watch } from "vue";
 import { useIsparkStore } from "@/stores/isparkStore";
@@ -185,6 +191,7 @@ import carMarker from "@/assets/car-pin.png";
 const isparkStore = useIsparkStore();
 const isHelpActive = ref(false);
 const isFilterActive = ref(false);
+const isFilterMenuActive = ref(false);
 const isGraphActive = ref(false);
 const toggleHelp = () => {
   isHelpActive.value = !isHelpActive.value;
@@ -200,6 +207,12 @@ const toggleGraph = () => {
   isGraphActive.value = !isGraphActive.value;
   isHelpActive.value = false;
   isFilterActive.value = false;
+};
+const toggleFilterMenu = () => {
+  isFilterMenuActive.value = !isFilterMenuActive.value;
+  isFilterActive.value = false;
+  isHelpActive.value = false;
+  isGraphActive.value = false;
 };
 const activeTab = ref("map");
 const isparkData = computed(() => isparkStore.isparkData?.data || []);
