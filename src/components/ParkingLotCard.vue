@@ -32,19 +32,14 @@
         class="border-opacity-100"
       ></v-divider>
 
-      <div v-if="item.driveDistance" class="grid grid-cols-3 mt-4">
-        <div class="col-span-2">
+      <div v-if="item.driveDistance" class="grid grid-cols-1 mt-4">
+        <div class="col-span-1">
           <p class="text-lightText">
             Mesafe: {{ parseFloat(item.driveDistance).toFixed(1) }} km
           </p>
           <p class="text-lightText">
             Tahmini Varış Süresi: {{ parseInt(item.driveTime, 10) }} dk
           </p>
-        </div>
-        <div class="col-span-1 flex justify-end align-center">
-          <v-btn icon color="primary" class="flex justify-center align-center">
-            <v-icon size="2rem">mdi-car-arrow-right</v-icon>
-          </v-btn>
         </div>
       </div>
     </v-card-text>

@@ -58,6 +58,7 @@ const props = defineProps({
   isFilterMenuActive: Boolean,
   onFilterChange: Function,
   toggleFilterMenu: Function,
+  getCurrentPosition: Function,
 });
 
 const showOnlyAvailable = ref(false);

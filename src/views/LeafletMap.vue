@@ -59,6 +59,7 @@
           :isFilterMenuActive="isFilterMenuActive"
           :onFilterChange="handleFilterChange"
           :toggleFilterMenu="toggleFilterMenu"
+          :getCurrentPosition="getCurrentPosition"
         />
         <div class="flex">
           <div
@@ -111,7 +112,8 @@
         </div>
       </v-window-item>
       <div class="hidden md:inline">
-        <h2 class="text-center text-7xl font-light mt-40 mb-32 col-span-5">
+        <GraphSection />
+        <h2 class="text-center text-7xl font-light mt-96 mb-32 col-span-5">
           Nasıl Kullanılır?
         </h2>
         <HelpSteps />
@@ -178,6 +180,7 @@ import HelpSteps from "@/components/HelpSteps.vue";
 import FilterSheet from "@/components/FilterSheet.vue";
 import FilterMenu from "@/components/FilterMenu.vue";
 import GraphSheet from "@/components/GraphSheet.vue";
+import GraphSection from "@/components/GraphSection.vue";
 import { ref, onMounted, computed, watch } from "vue";
 import { useIsparkStore } from "@/stores/isparkStore";
 import * as L from "leaflet";

@@ -1,5 +1,5 @@
 <template>
-  <transition name="fade-slide">
+  <transition class="sm:hidden" name="fade-slide">
     <v-sheet
       v-if="isGraphActive"
       class="p-4 col-span-1 text-cardText text-center mx-auto"
@@ -72,11 +72,7 @@
               Kayıtlı ilçeler arasındaki boş park alanlarının en yüksekten en
               düşüğe doğru sıralanması.
             </p>
-            <PolarArea
-              class="circular-chart"
-              v-if="!isLoading && !error"
-              :data="polarChartData"
-            />
+            <PolarArea v-if="!isLoading && !error" :data="polarChartData" />
           </div>
         </v-carousel-item>
         <v-carousel-item>
@@ -90,8 +86,42 @@
             <p class="font-medium text-lg">Mahalle bazlı otopark dağılımı.</p>
             <Bubble
               class="mt-8"
-              v-if="!isLoading && !error"
+              v-if="!isLoading && !error && bubbleChartData"
               :data="bubbleChartData"
+              :options="{
+                responsive: true,
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: (context) =>
+                        `${context.raw.x}: ${(context.raw.r)*10} otopark`,
+                    },
+                  },
+                },
+                scales: {
+                  x: {
+                    type: 'category',
+                    title: {
+                      display: true,
+                      text: 'Mahalle Adı',
+                    },
+                    ticks: {
+                      autoSkip: false,
+                      maxRotation: 90,
+                      minRotation: 45,
+                    },
+                  },
+                  y: {
+                    type: 'linear',
+                    display: true,
+                    title: {
+                      display: true,
+                      text: 'Otopark Sayısı',
+                    },
+                    min: 0,
+                  },
+                },
+              }"
             />
           </div>
         </v-carousel-item>
@@ -111,6 +141,7 @@ import {
   ArcElement,
   CategoryScale,
   LinearScale,
+  BubbleController,
   RadialLinearScale,
   PointElement,
 } from "chart.js";
@@ -121,8 +152,9 @@ ChartJS.register(
   ArcElement,
   CategoryScale,
   LinearScale,
+  BubbleController,
   RadialLinearScale,
-  PointElement,
+  PointElement
 );
 
 defineProps({
@@ -210,33 +242,26 @@ const polarChartData = computed(() => {
   };
 });
 const bubbleChartData = computed(() => {
-  if (!parkingStatistics.value || !parkingStatistics.value.districts) {
-    return null;
-  }
-  const districts = Object.entries(parkingStatistics.value.districts).map(
-    ([name, data]) => ({
+  const districts = Object.entries(parkingStatistics.value.districts)
+    .map(([name, data]) => ({
       name,
-      emptyCapacity: data.emptyCapacity,
-      totalCapacity: data.totalCapacity,
-    })
-  );
-
-  const labels = districts.map((district) => district.name);
-  const data = districts.map((district) => district.emptyCapacity);
-  const totalData = districts.map((district) => district.totalCapacity);
+      parkingLots: data.parkingLots,
+    }))
+    .sort((a, b) => b.parkingLots - a.parkingLots)
+    .slice(0, 10);
 
   return {
-    labels,
     datasets: [
       {
-        label: "Boş Park Alanı",
-        data: districts.map((district, index) => ({
-          x: totalData[index],
-          y: data[index],
-          r: Math.sqrt(data[index]) * 2,
+        label: "En Fazla Otopark İçeren 10 Mahalle",
+        data: districts.map((district) => ({
+          x: district.name,
+          y: district.parkingLots,
+          r: Math.min(district.parkingLots /10, 50),
         })),
-        backgroundColor: "rgba(0, 123, 255, 0.6)",
-        hoverBackgroundColor: "rgba(0, 123, 255, 1)",
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
       },
     ],
   };
@@ -254,11 +279,5 @@ const bubbleChartData = computed(() => {
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-20px);
-}
-.circular-chart {
-  width: 23rem !important;
-  height: 23rem !important;
-  margin-left: -2.4rem;
-  margin-top: 1rem;
 }
 </style>
